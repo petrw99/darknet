@@ -1,4 +1,12 @@
+<<<<<<< HEAD:examples/cifar.c
 #include "darknet.h"
+=======
+#include "network.h"
+#include "utils.h"
+#include "parser.h"
+#include "option_list.h"
+#include "blas.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/cifar.c
 
 void train_cifar(char *cfgfile, char *weightfile)
 {
@@ -9,7 +17,7 @@ void train_cifar(char *cfgfile, char *weightfile)
     network *net = load_network(cfgfile, weightfile, 0);
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
 
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* backup_directory = "backup/";
     int classes = 10;
     int N = 50000;
 
@@ -22,9 +30,15 @@ void train_cifar(char *cfgfile, char *weightfile)
         float loss = train_network_sgd(net, train, 1);
         if(avg_loss == -1) avg_loss = loss;
         avg_loss = avg_loss*.95 + loss*.05;
+<<<<<<< HEAD:examples/cifar.c
         printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net->seen);
         if(*net->seen/N > epoch){
             epoch = *net->seen/N;
+=======
+        printf("%d, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net.seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net.seen);
+        if(*net.seen/N > epoch){
+            epoch = *net.seen/N;
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/cifar.c
             char buff[256];
             sprintf(buff, "%s/%s_%d.weights",backup_directory,base, epoch);
             save_weights(net, buff);
@@ -54,7 +68,7 @@ void train_cifar_distill(char *cfgfile, char *weightfile)
     network *net = load_network(cfgfile, weightfile, 0);
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
 
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* backup_directory = "backup/";
     int classes = 10;
     int N = 50000;
 
@@ -75,9 +89,15 @@ void train_cifar_distill(char *cfgfile, char *weightfile)
         float loss = train_network_sgd(net, train, 1);
         if(avg_loss == -1) avg_loss = loss;
         avg_loss = avg_loss*.95 + loss*.05;
+<<<<<<< HEAD:examples/cifar.c
         printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net->seen);
         if(*net->seen/N > epoch){
             epoch = *net->seen/N;
+=======
+        printf("%d, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net.seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net.seen);
+        if(*net.seen/N > epoch){
+            epoch = *net.seen/N;
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/cifar.c
             char buff[256];
             sprintf(buff, "%s/%s_%d.weights",backup_directory,base, epoch);
             save_weights(net, buff);
@@ -120,8 +140,8 @@ void test_cifar_multi(char *filename, char *weightfile)
         axpy_cpu(10, 1, p, 1, pred, 1);
 
         int index = max_index(pred, 10);
-        int class = max_index(test.y.vals[i], 10);
-        if(index == class) avg_acc += 1;
+        int class_id = max_index(test.y.vals[i], 10);
+        if(index == class_id) avg_acc += 1;
         free_image(im);
         printf("%4d: %.2f%%\n", i, 100.*avg_acc/(i+1));
     }
@@ -154,17 +174,27 @@ char *labels[] = {"airplane","automobile","bird","cat","deer","dog","frog","hors
     data test = load_cifar10_data("data/cifar/cifar-10-batches-bin/test_batch.bin");
     for(i = 0; i < train.X.rows; ++i){
         image im = float_to_image(32, 32, 3, train.X.vals[i]);
-        int class = max_index(train.y.vals[i], 10);
+        int class_id = max_index(train.y.vals[i], 10);
         char buff[256];
+<<<<<<< HEAD:examples/cifar.c
         sprintf(buff, "data/cifar/train/%d_%s",i,labels[class]);
         save_image_options(im, buff, PNG, 0);
+=======
+        sprintf(buff, "data/cifar/train/%d_%s",i,labels[class_id]);
+        save_image_png(im, buff);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/cifar.c
     }
     for(i = 0; i < test.X.rows; ++i){
         image im = float_to_image(32, 32, 3, test.X.vals[i]);
-        int class = max_index(test.y.vals[i], 10);
+        int class_id = max_index(test.y.vals[i], 10);
         char buff[256];
+<<<<<<< HEAD:examples/cifar.c
         sprintf(buff, "data/cifar/test/%d_%s",i,labels[class]);
         save_image_options(im, buff, PNG, 0);
+=======
+        sprintf(buff, "data/cifar/test/%d_%s",i,labels[class_id]);
+        save_image_png(im, buff);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/cifar.c
     }
 }
 
@@ -247,5 +277,3 @@ void run_cifar(int argc, char **argv)
     else if(0==strcmp(argv[2], "csvtrain")) test_cifar_csvtrain(cfg, weights);
     else if(0==strcmp(argv[2], "eval")) eval_cifar_csv();
 }
-
-

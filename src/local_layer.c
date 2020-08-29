@@ -26,7 +26,7 @@ int local_out_width(local_layer l)
 local_layer make_local_layer(int batch, int h, int w, int c, int n, int size, int stride, int pad, ACTIVATION activation)
 {
     int i;
-    local_layer l = {0};
+    local_layer l = { (LAYER_TYPE)0 };
     l.type = LOCAL;
 
     l.h = h;
@@ -47,21 +47,28 @@ local_layer make_local_layer(int batch, int h, int w, int c, int n, int size, in
     l.outputs = l.out_h * l.out_w * l.out_c;
     l.inputs = l.w * l.h * l.c;
 
-    l.weights = calloc(c*n*size*size*locations, sizeof(float));
-    l.weight_updates = calloc(c*n*size*size*locations, sizeof(float));
+    l.weights = (float*)xcalloc(c * n * size * size * locations, sizeof(float));
+    l.weight_updates = (float*)xcalloc(c * n * size * size * locations, sizeof(float));
 
-    l.biases = calloc(l.outputs, sizeof(float));
-    l.bias_updates = calloc(l.outputs, sizeof(float));
+    l.biases = (float*)xcalloc(l.outputs, sizeof(float));
+    l.bias_updates = (float*)xcalloc(l.outputs, sizeof(float));
 
     // float scale = 1./sqrt(size*size*c);
     float scale = sqrt(2./(size*size*c));
     for(i = 0; i < c*n*size*size; ++i) l.weights[i] = scale*rand_uniform(-1,1);
 
+<<<<<<< HEAD
     l.output = calloc(l.batch*out_h * out_w * n, sizeof(float));
     l.delta  = calloc(l.batch*out_h * out_w * n, sizeof(float));
 
     l.workspace_size = out_h*out_w*size*size*c;
     
+=======
+    l.col_image = (float*)xcalloc(out_h * out_w * size * size * c, sizeof(float));
+    l.output = (float*)xcalloc(l.batch * out_h * out_w * n, sizeof(float));
+    l.delta = (float*)xcalloc(l.batch * out_h * out_w * n, sizeof(float));
+
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
     l.forward = forward_local_layer;
     l.backward = backward_local_layer;
     l.update = update_local_layer;
@@ -100,9 +107,15 @@ void forward_local_layer(const local_layer l, network net)
     }
 
     for(i = 0; i < l.batch; ++i){
+<<<<<<< HEAD
         float *input = net.input + i*l.w*l.h*l.c;
         im2col_cpu(input, l.c, l.h, l.w, 
                 l.size, l.stride, l.pad, net.workspace);
+=======
+        float *input = state.input + i*l.w*l.h*l.c;
+        im2col_cpu(input, l.c, l.h, l.w,
+                l.size, l.stride, l.pad, l.col_image);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
         float *output = l.output + i*l.outputs;
         for(j = 0; j < locations; ++j){
             float *a = l.weights + j*l.size*l.size*l.c*l.n;
@@ -131,11 +144,17 @@ void backward_local_layer(local_layer l, network net)
     }
 
     for(i = 0; i < l.batch; ++i){
+<<<<<<< HEAD
         float *input = net.input + i*l.w*l.h*l.c;
         im2col_cpu(input, l.c, l.h, l.w, 
                 l.size, l.stride, l.pad, net.workspace);
+=======
+        float *input = state.input + i*l.w*l.h*l.c;
+        im2col_cpu(input, l.c, l.h, l.w,
+                l.size, l.stride, l.pad, l.col_image);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 
-        for(j = 0; j < locations; ++j){ 
+        for(j = 0; j < locations; ++j){
             float *a = l.delta + i*l.outputs + j;
             float *b = net.workspace + j;
             float *c = l.weight_updates + j*l.size*l.size*l.c*l.n;
@@ -146,8 +165,13 @@ void backward_local_layer(local_layer l, network net)
             gemm(0,1,m,n,k,1,a,locations,b,locations,1,c,n);
         }
 
+<<<<<<< HEAD
         if(net.delta){
             for(j = 0; j < locations; ++j){ 
+=======
+        if(state.delta){
+            for(j = 0; j < locations; ++j){
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
                 float *a = l.weights + j*l.size*l.size*l.c*l.n;
                 float *b = l.delta + i*l.outputs + j;
                 float *c = net.workspace + j;
@@ -195,9 +219,15 @@ void forward_local_layer_gpu(const local_layer l, network net)
     }
 
     for(i = 0; i < l.batch; ++i){
+<<<<<<< HEAD
         float *input = net.input_gpu + i*l.w*l.h*l.c;
         im2col_gpu(input, l.c, l.h, l.w, 
                 l.size, l.stride, l.pad, net.workspace);
+=======
+        float *input = state.input + i*l.w*l.h*l.c;
+        im2col_ongpu(input, l.c, l.h, l.w,
+                l.size, l.stride, l.pad, l.col_image_gpu);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
         float *output = l.output_gpu + i*l.outputs;
         for(j = 0; j < locations; ++j){
             float *a = l.weights_gpu + j*l.size*l.size*l.c*l.n;
@@ -225,11 +255,17 @@ void backward_local_layer_gpu(local_layer l, network net)
     }
 
     for(i = 0; i < l.batch; ++i){
+<<<<<<< HEAD
         float *input = net.input_gpu + i*l.w*l.h*l.c;
         im2col_gpu(input, l.c, l.h, l.w, 
                 l.size, l.stride, l.pad, net.workspace);
+=======
+        float *input = state.input + i*l.w*l.h*l.c;
+        im2col_ongpu(input, l.c, l.h, l.w,
+                l.size, l.stride, l.pad, l.col_image_gpu);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 
-        for(j = 0; j < locations; ++j){ 
+        for(j = 0; j < locations; ++j){
             float *a = l.delta_gpu + i*l.outputs + j;
             float *b = net.workspace + j;
             float *c = l.weight_updates_gpu + j*l.size*l.size*l.c*l.n;
@@ -240,8 +276,13 @@ void backward_local_layer_gpu(local_layer l, network net)
             gemm_gpu(0,1,m,n,k,1,a,locations,b,locations,1,c,n);
         }
 
+<<<<<<< HEAD
         if(net.delta_gpu){
             for(j = 0; j < locations; ++j){ 
+=======
+        if(state.delta){
+            for(j = 0; j < locations; ++j){
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
                 float *a = l.weights_gpu + j*l.size*l.size*l.c*l.n;
                 float *b = l.delta_gpu + i*l.outputs + j;
                 float *c = net.workspace + j;
@@ -258,7 +299,11 @@ void backward_local_layer_gpu(local_layer l, network net)
     }
 }
 
+<<<<<<< HEAD
 void update_local_layer_gpu(local_layer l, update_args a)
+=======
+void update_local_layer_gpu(local_layer l, int batch, float learning_rate, float momentum, float decay, float loss_scale)
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 {
     float learning_rate = a.learning_rate*l.learning_rate_scale;
     float momentum = a.momentum;

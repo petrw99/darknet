@@ -1,16 +1,34 @@
+<<<<<<< HEAD:examples/tag.c
 #include "darknet.h"
+=======
+#include "network.h"
+#include "utils.h"
+#include "parser.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/tag.c
 
 void train_tag(char *cfgfile, char *weightfile, int clear)
 {
     srand(time(0));
     float avg_loss = -1;
     char *base = basecfg(cfgfile);
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* backup_directory = "backup/";
     printf("%s\n", base);
+<<<<<<< HEAD:examples/tag.c
     network *net = load_network(cfgfile, weightfile, clear);
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
+=======
+    network net = parse_network_cfg(cfgfile);
+    if(weightfile){
+        load_weights(&net, weightfile);
+    }
+    if (clear) {
+        *net.seen = 0;
+        *net.cur_iteration = 0;
+    }
+    printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net.learning_rate, net.momentum, net.decay);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/tag.c
     int imgs = 1024;
-    list *plist = get_paths("/home/pjreddie/tag/train.list");
+    list* plist = get_paths("tag/train.list");
     char **paths = (char **)list_to_array(plist);
     printf("%d\n", plist->size);
     int N = plist->size;
@@ -54,7 +72,11 @@ void train_tag(char *cfgfile, char *weightfile, int clear)
         float loss = train_network(net, train);
         if(avg_loss == -1) avg_loss = loss;
         avg_loss = avg_loss*.9 + loss*.1;
+<<<<<<< HEAD:examples/tag.c
         printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net->seen);
+=======
+        printf("%d, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net.seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net.seen);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/tag.c
         free_data(train);
         if(*net->seen/N > epoch){
             epoch = *net->seen/N;
@@ -137,4 +159,3 @@ void run_tag(int argc, char **argv)
     if(0==strcmp(argv[2], "train")) train_tag(cfg, weights, clear);
     else if(0==strcmp(argv[2], "test")) test_tag(cfg, weights, filename);
 }
-

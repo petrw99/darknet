@@ -1,6 +1,13 @@
 #include "darknet.h"
 
+<<<<<<< HEAD:examples/nightmare.c
 #include <math.h>
+=======
+#include "network.h"
+#include "parser.h"
+#include "blas.h"
+#include "utils.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/nightmare.c
 
 // ./darknet nightmare cfg/extractor.recon.cfg ~/trained/yolo-coco.conv frame6.png -reconstruct -iters 500 -i 3 -lambda .1 -rate .01 -smooth 2
 
@@ -17,7 +24,7 @@ float abs_mean(float *x, int n)
 void calculate_loss(float *output, float *delta, int n, float thresh)
 {
     int i;
-    float mean = mean_array(output, n); 
+    float mean = mean_array(output, n);
     float var = variance_array(output, n);
     for(i = 0; i < n; ++i){
         if(delta[i] > mean + thresh*sqrt(var)) delta[i] = output[i];
@@ -287,7 +294,7 @@ void run_lsd(int argc, char **argv)
 
 void run_nightmare(int argc, char **argv)
 {
-    srand(0);
+    srand(time(0));
     if(argc < 4){
         fprintf(stderr, "usage: %s %s [cfg] [weights] [image] [layer] [options! (optional)]\n", argv[0], argv[1]);
         return;
@@ -370,13 +377,20 @@ void run_nightmare(int argc, char **argv)
     for(e = 0; e < rounds; ++e){
         fprintf(stderr, "Iteration: ");
         fflush(stderr);
-        for(n = 0; n < iters; ++n){  
+        for(n = 0; n < iters; ++n){
             fprintf(stderr, "%d, ", n);
             fflush(stderr);
             if(reconstruct){
                 reconstruct_picture(net, features, im, update, rate, momentum, lambda, smooth_size, 1);
                 //if ((n+1)%30 == 0) rate *= .5;
+<<<<<<< HEAD:examples/nightmare.c
                 show_image(im, "reconstruction", 10);
+=======
+                show_image(im, "reconstruction");
+#ifdef OPENCV
+                wait_key_cv(10);
+#endif
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/nightmare.c
             }else{
                 int layer = max_layer + rand()%range - range/2;
                 int octave = rand()%octaves;
@@ -397,7 +411,12 @@ void run_nightmare(int argc, char **argv)
         }
         printf("%d %s\n", e, buff);
         save_image(im, buff);
+<<<<<<< HEAD:examples/nightmare.c
         //show_image(im, buff, 0);
+=======
+        //show_image(im, buff);
+        //wait_key_cv(0);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/nightmare.c
 
         if(rotate){
             image rot = rotate_image(im, rotate);
@@ -411,4 +430,3 @@ void run_nightmare(int argc, char **argv)
         im = resized;
     }
 }
-

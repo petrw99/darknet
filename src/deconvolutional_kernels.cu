@@ -1,8 +1,7 @@
-#include "cuda_runtime.h"
-#include "curand.h"
-#include "cublas_v2.h"
+#include <cuda_runtime.h>
+#include <curand.h>
+#include <cublas_v2.h>
 
-extern "C" {
 #include "convolutional_layer.h"
 #include "deconvolutional_layer.h"
 #include "batchnorm_layer.h"
@@ -11,8 +10,7 @@ extern "C" {
 #include "im2col.h"
 #include "col2im.h"
 #include "utils.h"
-#include "cuda.h"
-}
+#include "dark_cuda.h"
 
 extern "C" void forward_deconvolutional_layer_gpu(layer l, network net)
 {
@@ -65,9 +63,15 @@ extern "C" void backward_deconvolutional_layer_gpu(layer l, network net)
         float *b = net.workspace;
         float *c = l.weight_updates_gpu;
 
+<<<<<<< HEAD
         im2col_gpu(l.delta_gpu + i*l.outputs, l.out_c, l.out_h, l.out_w, 
                 l.size, l.stride, l.pad, b);
         gemm_gpu(0,1,m,n,k,1,a,k,b,k,1,c,n);
+=======
+        im2col_ongpu(layer.delta_gpu + i*layer.n*size, layer.n, out_h, out_w,
+                layer.size, layer.stride, 0, b);
+        gemm_ongpu(0,1,m,n,k,alpha,a,k,b,k,1,c,n);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 
         if(net.delta_gpu){
             int m = l.c;
@@ -109,7 +113,11 @@ extern "C" void push_deconvolutional_layer(layer l)
     }
 }
 
+<<<<<<< HEAD
 void update_deconvolutional_layer_gpu(layer l, update_args a)
+=======
+extern "C" void update_deconvolutional_layer_gpu(deconvolutional_layer layer, int skip, float learning_rate, float momentum, float decay)
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 {
     float learning_rate = a.learning_rate*l.learning_rate_scale;
     float momentum = a.momentum;
@@ -136,4 +144,3 @@ void update_deconvolutional_layer_gpu(layer l, update_args a)
         }
     }
 }
-

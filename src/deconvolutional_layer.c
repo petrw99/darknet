@@ -35,7 +35,11 @@ void bilinear_init(layer l)
 layer make_deconvolutional_layer(int batch, int h, int w, int c, int n, int size, int stride, int padding, ACTIVATION activation, int batch_normalize, int adam)
 {
     int i;
+<<<<<<< HEAD
     layer l = {0};
+=======
+    deconvolutional_layer l = { (LAYER_TYPE)0 };
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
     l.type = DECONVOLUTIONAL;
 
     l.h = h;
@@ -46,6 +50,7 @@ layer make_deconvolutional_layer(int batch, int h, int w, int c, int n, int size
     l.stride = stride;
     l.size = size;
 
+<<<<<<< HEAD
     l.nweights = c*n*size*size;
     l.nbiases = n;
 
@@ -57,6 +62,14 @@ layer make_deconvolutional_layer(int batch, int h, int w, int c, int n, int size
     //float scale = n/(size*size*c);
     //printf("scale: %f\n", scale);
     float scale = .02;
+=======
+    l.weights = (float*)xcalloc(c * n * size * size, sizeof(float));
+    l.weight_updates = (float*)xcalloc(c * n * size * size, sizeof(float));
+
+    l.biases = (float*)xcalloc(n, sizeof(float));
+    l.bias_updates = (float*)xcalloc(n, sizeof(float));
+    float scale = 1./sqrt(size*size*c);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
     for(i = 0; i < c*n*size*size; ++i) l.weights[i] = scale*rand_normal();
     //bilinear_init(l);
     for(i = 0; i < n; ++i){
@@ -70,10 +83,16 @@ layer make_deconvolutional_layer(int batch, int h, int w, int c, int n, int size
     l.outputs = l.out_w * l.out_h * l.out_c;
     l.inputs = l.w * l.h * l.c;
 
+<<<<<<< HEAD
     scal_cpu(l.nweights, (float)l.out_w*l.out_h/(l.w*l.h), l.weights, 1);
 
     l.output = calloc(l.batch*l.outputs, sizeof(float));
     l.delta  = calloc(l.batch*l.outputs, sizeof(float));
+=======
+    l.col_image = (float*)xcalloc(h * w * size * size * n, sizeof(float));
+    l.output = (float*)xcalloc(l.batch * out_h * out_w * n, sizeof(float));
+    l.delta = (float*)xcalloc(l.batch * out_h * out_w * n, sizeof(float));
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 
     l.forward = forward_deconvolutional_layer;
     l.backward = backward_deconvolutional_layer;
@@ -184,6 +203,7 @@ void resize_deconvolutional_layer(layer *l, int h, int w)
 {
     l->h = h;
     l->w = w;
+<<<<<<< HEAD
     l->out_h = (l->h - 1) * l->stride + l->size - 2*l->pad;
     l->out_w = (l->w - 1) * l->stride + l->size - 2*l->pad;
 
@@ -198,6 +218,19 @@ void resize_deconvolutional_layer(layer *l, int h, int w)
     }
 
 #ifdef GPU
+=======
+    int out_h = deconvolutional_out_height(*l);
+    int out_w = deconvolutional_out_width(*l);
+
+    l->col_image = (float*)xrealloc(l->col_image,
+                                out_h*out_w*l->size*l->size*l->c*sizeof(float));
+    l->output = (float*)xrealloc(l->output,
+                                l->batch*out_h * out_w * l->n*sizeof(float));
+    l->delta = (float*)xrealloc(l->delta,
+                                l->batch*out_h * out_w * l->n*sizeof(float));
+    #ifdef GPU
+    cuda_free(l->col_image_gpu);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
     cuda_free(l->delta_gpu);
     cuda_free(l->output_gpu);
 
@@ -269,9 +302,15 @@ void backward_deconvolutional_layer(layer l, network net)
         float *b = net.workspace;
         float *c = l.weight_updates;
 
+<<<<<<< HEAD
         im2col_cpu(l.delta + i*l.outputs, l.out_c, l.out_h, l.out_w, 
                 l.size, l.stride, l.pad, b);
         gemm_cpu(0,1,m,n,k,1,a,k,b,k,1,c,n);
+=======
+        im2col_cpu(l.delta + i*l.n*size, l.n, out_h, out_w,
+                l.size, l.stride, 0, b);
+        gemm(0,1,m,n,k,alpha,a,k,b,k,1,c,n);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 
         if(net.delta){
             int m = l.c;
@@ -287,7 +326,11 @@ void backward_deconvolutional_layer(layer l, network net)
     }
 }
 
+<<<<<<< HEAD
 void update_deconvolutional_layer(layer l, update_args a)
+=======
+void update_deconvolutional_layer(deconvolutional_layer l, int skip, float learning_rate, float momentum, float decay)
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 {
     float learning_rate = a.learning_rate*l.learning_rate_scale;
     float momentum = a.momentum;
@@ -307,6 +350,3 @@ void update_deconvolutional_layer(layer l, update_args a)
     axpy_cpu(size, learning_rate/batch, l.weight_updates, 1, l.weights, 1);
     scal_cpu(size, momentum, l.weight_updates, 1);
 }
-
-
-

@@ -1,10 +1,19 @@
+<<<<<<< HEAD:examples/swag.c
 #include "darknet.h"
 #include <sys/time.h>
+=======
+#include "network.h"
+#include "detection_layer.h"
+#include "cost_layer.h"
+#include "utils.h"
+#include "parser.h"
+#include "box.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/swag.c
 
 void train_swag(char *cfgfile, char *weightfile)
 {
     char *train_images = "data/voc.0712.trainval";
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* backup_directory = "backup/";
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);

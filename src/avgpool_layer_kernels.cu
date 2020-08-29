@@ -1,11 +1,9 @@
-#include "cuda_runtime.h"
-#include "curand.h"
-#include "cublas_v2.h"
+#include <cuda_runtime.h>
+#include <curand.h>
+#include <cublas_v2.h>
 
-extern "C" {
 #include "avgpool_layer.h"
-#include "cuda.h"
-}
+#include "dark_cuda.h"
 
 __global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c, float *input, float *output)
 {
@@ -47,15 +45,24 @@ extern "C" void forward_avgpool_layer_gpu(avgpool_layer layer, network net)
 {
     size_t n = layer.c*layer.batch;
 
+<<<<<<< HEAD
     forward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.input_gpu, layer.output_gpu);
     check_error(cudaPeekAtLastError());
+=======
+    forward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK, 0, get_cuda_stream() >>>(n, layer.w, layer.h, layer.c, state.input, layer.output_gpu);
+    CHECK_CUDA(cudaPeekAtLastError());
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 }
 
 extern "C" void backward_avgpool_layer_gpu(avgpool_layer layer, network net)
 {
     size_t n = layer.c*layer.batch;
 
+<<<<<<< HEAD
     backward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.delta_gpu, layer.delta_gpu);
     check_error(cudaPeekAtLastError());
+=======
+    backward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK, 0, get_cuda_stream() >>>(n, layer.w, layer.h, layer.c, state.delta, layer.delta_gpu);
+    CHECK_CUDA(cudaPeekAtLastError());
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4
 }
-

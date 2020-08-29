@@ -1,8 +1,14 @@
+<<<<<<< HEAD:examples/writing.c
 #include "darknet.h"
+=======
+#include "network.h"
+#include "utils.h"
+#include "parser.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/writing.c
 
 void train_writing(char *cfgfile, char *weightfile)
 {
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* backup_directory = "backup/";
     srand(time(0));
     float avg_loss = -1;
     char *base = basecfg(cfgfile);
@@ -63,7 +69,11 @@ void train_writing(char *cfgfile, char *weightfile)
 
         if(avg_loss == -1) avg_loss = loss;
         avg_loss = avg_loss*.9 + loss*.1;
+<<<<<<< HEAD:examples/writing.c
         printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net.seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net.seen);
+=======
+        printf("%d, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net.seen)/N, loss, avg_loss, get_current_rate(net), sec(clock()-time), *net.seen);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/writing.c
         free_data(train);
         if(get_current_batch(net)%100 == 0){
             char buff[256];
@@ -116,10 +126,9 @@ void test_writing(char *cfgfile, char *weightfile, char *filename)
 
         show_image(pred, "prediction");
         show_image(im, "orig");
-#ifdef OPENCV
-        cvWaitKey(0);
-        cvDestroyAllWindows();
-#endif
+
+        wait_until_press_key_cv();
+        destroy_all_windows_cv();
 
         free_image(upsampled);
         free_image(thresh);
@@ -141,4 +150,3 @@ void run_writing(int argc, char **argv)
     if(0==strcmp(argv[2], "train")) train_writing(cfg, weights);
     else if(0==strcmp(argv[2], "test")) test_writing(cfg, weights, filename);
 }
-

@@ -36,11 +36,11 @@ void train_captcha(char *cfgfile, char *weightfile)
     int i = *net->seen/imgs;
     int solved = 1;
     list *plist;
-    char **labels = get_labels("/data/captcha/reimgs.labels.list");
+    char** labels = get_labels("data/captcha/reimgs.labels.list");
     if (solved){
-        plist = get_paths("/data/captcha/reimgs.solved.list");
+        plist = get_paths("data/captcha/reimgs.solved.list");
     }else{
-        plist = get_paths("/data/captcha/reimgs.raw.list");
+        plist = get_paths("data/captcha/reimgs.raw.list");
     }
     char **paths = (char **)list_to_array(plist);
     printf("%d\n", plist->size);
@@ -80,11 +80,15 @@ void train_captcha(char *cfgfile, char *weightfile)
         float loss = train_network(net, train);
         if(avg_loss == -1) avg_loss = loss;
         avg_loss = avg_loss*.9 + loss*.1;
+<<<<<<< HEAD:examples/captcha.c
         printf("%d: %f, %f avg, %lf seconds, %ld images\n", i, loss, avg_loss, sec(clock()-time), *net->seen);
+=======
+        printf("%d: %f, %f avg, %lf seconds, %ld images\n", i, loss, avg_loss, sec(clock()-time), *net.seen);
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/captcha.c
         free_data(train);
         if(i%100==0){
             char buff[256];
-            sprintf(buff, "/home/pjreddie/imagenet_backup/%s_%d.weights",base, i);
+            sprintf(buff, "imagenet_backup/%s_%d.weights", base, i);
             save_weights(net, buff);
         }
     }
@@ -96,7 +100,7 @@ void test_captcha(char *cfgfile, char *weightfile, char *filename)
     set_batch_network(net, 1);
     srand(2222222);
     int i = 0;
-    char **names = get_labels("/data/captcha/reimgs.labels.list");
+    char** names = get_labels("data/captcha/reimgs.labels.list");
     char buff[256];
     char *input = buff;
     int indexes[26];
@@ -129,9 +133,18 @@ void test_captcha(char *cfgfile, char *weightfile, char *filename)
 
 void valid_captcha(char *cfgfile, char *weightfile, char *filename)
 {
+<<<<<<< HEAD:examples/captcha.c
     char **labels = get_labels("/data/captcha/reimgs.labels.list");
     network *net = load_network(cfgfile, weightfile, 0);
     list *plist = get_paths("/data/captcha/reimgs.fg.list");
+=======
+    char** labels = get_labels("data/captcha/reimgs.labels.list");
+    network net = parse_network_cfg(cfgfile);
+    if(weightfile){
+        load_weights(&net, weightfile);
+    }
+    list* plist = get_paths("data/captcha/reimgs.fg.list");
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/captcha.c
     char **paths = (char **)list_to_array(plist);
     int N = plist->size;
     int outputs = net->outputs;
@@ -350,4 +363,3 @@ void run_captcha(int argc, char **argv)
     //else if(0==strcmp(argv[2], "decode")) decode_captcha(cfg, weights);
     //else if(0==strcmp(argv[2], "valid")) validate_captcha(cfg, weights);
 }
-

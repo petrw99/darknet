@@ -1,4 +1,11 @@
+<<<<<<< HEAD:examples/voxel.c
 #include "darknet.h"
+=======
+#include "network.h"
+#include "cost_layer.h"
+#include "utils.h"
+#include "parser.h"
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/voxel.c
 
 void extract_voxel(char *lfile, char *rfile, char *prefix)
 {
@@ -7,11 +14,11 @@ void extract_voxel(char *lfile, char *rfile, char *prefix)
     int h = 1080;
     int shift = 0;
     int count = 0;
-    CvCapture *lcap = cvCaptureFromFile(lfile);
-    CvCapture *rcap = cvCaptureFromFile(rfile);
+    cap_cv *lcap = get_capture_video_stream(lfile);
+    cap_cv *rcap = get_capture_video_stream(rfile);
     while(1){
-        image l = get_image_from_stream(lcap);
-        image r = get_image_from_stream(rcap);
+        image l = get_image_from_stream_cpp(lcap);
+        image r = get_image_from_stream_cpp(rcap);
         if(!l.w || !r.w) break;
         if(count%100 == 0) {
             shift = best_3d_shift_r(l, r, -l.h/100, l.h/100);
@@ -38,8 +45,8 @@ void extract_voxel(char *lfile, char *rfile, char *prefix)
 
 void train_voxel(char *cfgfile, char *weightfile)
 {
-    char *train_images = "/data/imagenet/imagenet1k.train.list";
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* train_images = "data/imagenet/imagenet1k.train.list";
+    char* backup_directory = "backup/";
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);

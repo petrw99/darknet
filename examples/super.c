@@ -1,9 +1,14 @@
 #include "darknet.h"
 
+<<<<<<< HEAD:examples/super.c
 void train_super(char *cfgfile, char *weightfile, int clear)
+=======
+
+void train_super(char *cfgfile, char *weightfile)
+>>>>>>> 05dee78fa3c41d92eb322d8d57fb065ddebc00b4:src/super.c
 {
-    char *train_images = "/data/imagenet/imagenet1k.train.list";
-    char *backup_directory = "/home/pjreddie/backup/";
+    char* train_images = "data/imagenet/imagenet1k.train.list";
+    char* backup_directory = "backup/";
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);
